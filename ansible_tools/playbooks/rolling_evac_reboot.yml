@@ -1,5 +1,6 @@
 ---
 
+# Rolling evacuation + reboot for 'zero-downtime' maintenance of compute hosts
 # Usage: `openstack-ansible rolling_evac_reboot.yml`
 
 - name: Rolling evacuation and reboot of compute hosts
