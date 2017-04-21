@@ -3,6 +3,9 @@
 # Rolling evacuation + reboot for 'zero-downtime' maintenance of compute hosts
 # Usage: `openstack-ansible rolling_evac_reboot.yml`
 
+# Some parts from script provided by logan- on #openstack-ansible IRC:
+# http://cdn.pasteraw.com/oudh969r0nlltpd0vshoqt4mecj99zc
+
 - name: Rolling evacuation and reboot of compute hosts
   hosts: compute_hosts
   any_errors_fatal: true
