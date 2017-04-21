@@ -11,7 +11,7 @@
   pre_tasks:
     - name: Evacuate compute host
       shell: >
-        source openrc;
+        . ~/openrc;
         nova host-evacuate-live {{ ansible_fqdn }}
       delegate_to: "{{ groups['utility_all'][0] }}"
       changed_when: false
@@ -29,7 +29,7 @@
                  | list | length }}"
     - name: Disable nova service
       shell: >
-        source openrc;
+        . ~/openrc;
         nova service-disable --reason "Ansible rolling reboot" {{ ansible_fqdn }} nova-compute
       delegate_to: "{{ groups['utility_all'][0] }}"
       changed_when: false
