@@ -43,7 +43,10 @@
       changed_when: false
       tags:
         - reboot
-    - name: Wait for server to reboot
+    - name: Wait a minute to ensure server shuts down before reconnect attempt
+      pause:
+        minutes: 1
+    - name: Wait for server to come back online
       local_action: 'command ssh -o ConnectTimeout=1 {{ ansible_fqdn }} exit'
       register: ssh_attempt
       until: ssh_attempt|success
