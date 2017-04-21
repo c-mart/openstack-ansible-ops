@@ -47,8 +47,8 @@
       local_action: 'command ssh -o ConnectTimeout=1 {{ ansible_host }} exit'
       register: ssh_attempt
       until: ssh_attempt|success
-      retries: 10
-      delay: 30
+      retries: 20
+      delay: 15
       tags:
         - reboot
   post_tasks:
