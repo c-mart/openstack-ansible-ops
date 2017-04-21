@@ -1,0 +1,59 @@
+---
+
+# Usage: `openstack-ansible rolling_evac_reboot.yml`
+
+- name: Rolling evacuation and reboot of compute hosts
+  hosts: compute_hosts
+  any_errors_fatal: true
+  serial: 1
+  user: root
+  vars:
+  pre_tasks:
+    - name: Evacuate compute host
+      shell: >
+        source openrc;
+        nova host-evacuate-live {{ ansible_fqdn }}
+      delegate_to: "{{ groups['utility_all'][0] }}"
+      changed_when: false
+      tags:
+        - evac
+    - name: Ensure no active workloads on compute host
+      command: >
+        openstack server list --all-projects --long -f json --host {{ ansible_fqdn }}
+      delegate_to: "{{ groups['utility_all'][0] }}"
+      register: nova_host_instances
+      retries: 11
+      delay: 5
+      until: "{{ 0 == nova_host_instances.stdout | from_json
+                 | rejectattr('Status', 'equalto', 'SHUTOFF')
+                 | list | length }}"
+    - name: Disable nova service
+      shell: >
+        source openrc;
+        nova service-disable --reason "Ansible rolling reboot" {{ ansible_fqdn }} nova-compute
+      delegate_to: "{{ groups['utility_all'][0] }}"
+      changed_when: false
+  tasks:
+    - name: Reboot server
+      command: shutdown -r now "Ansible rolling reboot"
+      async: 0
+      poll: 0
+      ignore_errors: true
+      changed_when: false
+      tags:
+        - reboot
+    - name: Wait for server to reboot
+      local_action: 'command ssh -o ConnectTimeout=1 {{ ansible_host }} exit'
+      register: ssh_attempt
+      until: ssh_attempt|success
+      timeout: 600
+      delay: 30
+      tags:
+        - reboot
+  post_tasks:
+    - name: Enable nova service
+      shell: >
+        source openrc;
+        nova service-enable {{ ansible_fqdn }} nova-compute
+      delegate_to: "{{ groups['utility_all'][0] }}"
+      changed_when: false
