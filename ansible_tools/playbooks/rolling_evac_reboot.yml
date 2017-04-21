@@ -18,7 +18,8 @@
       tags:
         - evac
     - name: Ensure no active workloads on compute host
-      command: >
+      shell: >
+        . ~/openrc;
         openstack server list --all-projects --long -f json --host {{ ansible_fqdn }}
       delegate_to: "{{ groups['utility_all'][0] }}"
       register: nova_host_instances
@@ -53,7 +54,7 @@
   post_tasks:
     - name: Enable nova service
       shell: >
-        source openrc;
+        . ~/openrc;
         nova service-enable {{ ansible_fqdn }} nova-compute
       delegate_to: "{{ groups['utility_all'][0] }}"
       changed_when: false
