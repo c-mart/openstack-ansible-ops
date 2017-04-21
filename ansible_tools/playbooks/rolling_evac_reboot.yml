@@ -28,6 +28,7 @@
       until: "{{ 0 == nova_host_instances.stdout | from_json
                  | rejectattr('Status', 'equalto', 'SHUTOFF')
                  | list | length }}"
+      changed_when: false
     - name: Disable nova service
       shell: >
         . ~/openrc;
@@ -36,10 +37,9 @@
       changed_when: false
   tasks:
     - name: Reboot server
-      command: shutdown -r now "Ansible rolling reboot"
+      shell: ( sleep 3 && /sbin/reboot & )
       async: 0
       poll: 0
-      ignore_errors: true
       changed_when: false
       tags:
         - reboot
