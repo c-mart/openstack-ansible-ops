@@ -23,8 +23,8 @@
         openstack server list --all-projects --long -f json --host {{ ansible_fqdn }}
       delegate_to: "{{ groups['utility_all'][0] }}"
       register: nova_host_instances
-      retries: 11
-      delay: 5
+      retries: 10
+      delay: 10
       until: "{{ 0 == nova_host_instances.stdout | from_json
                  | rejectattr('Status', 'equalto', 'SHUTOFF')
                  | list | length }}"
@@ -44,7 +44,7 @@
       tags:
         - reboot
     - name: Wait for server to reboot
-      local_action: 'command ssh -o ConnectTimeout=1 {{ ansible_host }} exit'
+      local_action: 'command ssh -o ConnectTimeout=1 {{ ansible_fqdn }} exit'
       register: ssh_attempt
       until: ssh_attempt|success
       retries: 20
