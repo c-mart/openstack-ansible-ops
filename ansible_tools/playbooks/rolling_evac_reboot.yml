@@ -16,7 +16,6 @@
         . ~/openrc;
         nova host-evacuate-live {{ ansible_fqdn }}
       delegate_to: "{{ groups['utility_all'][0] }}"
-      changed_when: false
       tags:
         - evac
     - name: Ensure no active workloads on compute host
@@ -36,13 +35,11 @@
         . ~/openrc;
         nova service-disable --reason "Ansible rolling reboot" {{ ansible_fqdn }} nova-compute
       delegate_to: "{{ groups['utility_all'][0] }}"
-      changed_when: false
   tasks:
     - name: Reboot server
       shell: ( sleep 3 && /sbin/reboot & )
       async: 0
       poll: 0
-      changed_when: false
       tags:
         - reboot
     - name: Wait a minute to ensure server shuts down before reconnect attempt
@@ -56,10 +53,10 @@
       delay: 15
       tags:
         - reboot
+      changed_when: false
   post_tasks:
     - name: Enable nova service
       shell: >
         . ~/openrc;
         nova service-enable {{ ansible_fqdn }} nova-compute
       delegate_to: "{{ groups['utility_all'][0] }}"
-      changed_when: false
