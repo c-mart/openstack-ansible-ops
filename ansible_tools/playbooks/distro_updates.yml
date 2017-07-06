@@ -1,0 +1,30 @@
+---
+
+# Performs APT distro updates for hosts and then containers
+# Usage: `openstack-ansible distro_updates.yml`
+
+- name: Update hosts
+  hosts:
+    - hosts
+  user: root
+  tasks:
+    - name: Update packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+    - name: APT autoremove
+      apt:
+        autoremove: yes
+
+- name: Update Containers
+  hosts:
+    - all_containers
+  user: root
+  tasks:
+    - name: Update packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+    - name: APT autoremove
+      apt:
+        autoremove: yes
